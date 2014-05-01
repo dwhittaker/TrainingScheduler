@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{5FE439BA-DE3B-472B-9E7C-FC49BF9F4529}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <MyType>Windows</MyType>
+    <RootNamespace>TrainingScheduler</RootNamespace>
+    <AssemblyName>TrainingScheduler</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <UseIISExpress>False</UseIISExpress>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\dwhittaker\Application Data\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG=1,TRACE=1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE=1</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AjaxControlToolkit">
+      <HintPath>..\..\..\..\..\..\Ajax\AjaxControlToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddCourse.aspx.vb">
+      <DependentUpon>AddCourse.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin.aspx.vb">
+      <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AssemblyInfo.vb" />
+    <Compile Include="Attendance.aspx.vb">
+      <DependentUpon>Attendance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BlockControls.aspx.vb">
+      <DependentUpon>BlockControls.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BuildImport.aspx.vb">
+      <DependentUpon>BuildImport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BuildModule.aspx.vb">
+      <DependentUpon>BuildModule.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BuildSecurity.aspx.vb">
+      <DependentUpon>BuildSecurity.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ClassAttributes.aspx.vb">
+      <DependentUpon>ClassAttributes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Config.aspx.vb">
+      <DependentUpon>Config.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CourseCategory.aspx.vb">
+      <DependentUpon>CourseCategory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CourseInstructor.aspx.vb">
+      <DependentUpon>CourseInstructor.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ddlSearch.ascx.vb">
+      <DependentUpon>ddlSearch.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="EmployeeModule.aspx.vb">
+      <DependentUpon>EmployeeModule.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ESig.ascx.vb">
+      <DependentUpon>ESig.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="ImportFile.aspx.vb">
+      <DependentUpon>ImportFile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ImportList.aspx.vb">
+      <DependentUpon>ImportList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MergeRecords.aspx.vb">
+      <DependentUpon>MergeRecords.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ModScheduler.aspx.vb">
+      <DependentUpon>ModScheduler.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Modules.aspx.vb">
+      <DependentUpon>Modules.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RecertEx.aspx.vb">
+      <DependentUpon>RecertEx.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SecurityGroups.aspx.vb">
+      <DependentUpon>SecurityGroups.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SignIn.aspx.vb">
+      <DependentUpon>SignIn.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrainingCourse.aspx.vb">
+      <DependentUpon>TrainingCourse.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrainingRecords.aspx.vb">
+      <DependentUpon>TrainingRecords.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Utility.vb" />
+    <Compile Include="Default.aspx.vb">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.vb">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.vb">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RegistryForm.aspx.vb">
+      <DependentUpon>RegistryForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SiteMaster.master.vb">
+      <DependentUpon>SiteMaster.master</DependentUpon>
+    </Compile>
+    <Compile Include="RegisterEmp.aspx.vb">
+      <DependentUpon>RegisterEmp.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AttendanceForm.aspx.vb">
+      <DependentUpon>AttendanceForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="InsDashboard.aspx.vb">
+      <DependentUpon>InsDashboard.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AddCourse.aspx" />
+    <None Include="Admin.aspx" />
+    <None Include="Attendance.aspx" />
+    <None Include="BlockControls.aspx" />
+    <None Include="BuildImport.aspx" />
+    <None Include="BuildModule.aspx" />
+    <None Include="BuildSecurity.aspx" />
+    <None Include="ClassAttributes.aspx" />
+    <None Include="Config.aspx" />
+    <None Include="CourseCategory.aspx" />
+    <None Include="CourseInstructor.aspx" />
+    <None Include="ddlSearch.ascx" />
+    <None Include="Default.aspx" />
+    <None Include="EmployeeModule.aspx" />
+    <None Include="ESig.ascx" />
+    <None Include="ImportFile.aspx" />
+    <None Include="ImportList.aspx" />
+    <None Include="MergeRecords.aspx" />
+    <None Include="ModScheduler.aspx" />
+    <None Include="Modules.aspx" />
+    <None Include="RecertEx.aspx" />
+    <None Include="Global.asax" />
+    <None Include="Login.aspx" />
+    <None Include="RegistryForm.aspx" />
+    <None Include="SecurityGroups.aspx" />
+    <None Include="SignIn.aspx" />
+    <None Include="SiteMaster.master" />
+    <None Include="TrainingCourse.aspx" />
+    <None Include="TrainingRecords.aspx" />
+    <None Include="TrainingScheduler.css" />
+    <None Include="Web.config" />
+    <None Include="RegisterEmp.aspx" />
+    <None Include="AttendanceForm.aspx" />
+    <None Include="InsDashboard.aspx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.Targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349C5851-65DF-11DA-9384-00065B846F21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>8080</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost/TrainingScheduler</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

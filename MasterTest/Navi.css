@@ -1,0 +1,119 @@
+
+/*----------------------------------------------*/
+SELECT
+{	font-family: Verdana;
+	font-weight: normal;
+	font-size:   11px;
+	color:		  #000000;
+	background-color: #FFFFFF;
+}
+/*----------------------------------------------*/
+INPUT
+{	font-family: Verdana;
+	font-weight: normal;
+	font-size:   11px;
+	color:		  #000000;
+}
+/*----------------------------------------------*/
+TEXTAREA
+{	font-family: Verdana;
+	font-weight: normal;
+	font-size:   11px;
+	color:		  #000000;
+	background-color: #FFFFFF;
+}
+/*----------------------------------------------*/
+A
+{	FONT-WEIGHT: 	 bold;
+	Font-Size: Small;
+	COLOR:		 	 #004080;
+	font-style:	 	 normal;
+	text-decoration: none;
+}
+
+A:hover
+{	FONT-WEIGHT: bold;
+	COLOR: 		 #FF5357;
+}
+.Grid
+{
+	border: 2px black solid;
+	border-collapse:collapse;
+}
+.GridHeader
+{
+	background-color: blue;
+	font-weight: bold;
+	color:  White;
+	Font-Size: Small;
+}
+
+.GridFColumn
+{
+	background-color:#DEDEDE ;
+	font-weight: bold;
+	color: Blue;
+	Font-Size: Small;
+	border: 1px black solid;
+}
+
+.GridColumns
+{
+	background-color: White;
+	color: black;
+	padding: 5px 5px 5px 5px;
+	border: 1px black solid;
+	Font-Size: 18px;
+}
+.FormButton
+{
+	font-size: Small;
+	Font-weight: Bold;
+	height:  30px;
+	width:  200px;
+}
+TD
+{
+	border-style:  Hidden;
+	padding: 5px 5px 5px 5px;
+}
+TD.bottom
+{
+	vertical-align: bottom;
+	horizontal-align: left;
+	border-bottom: 5px solid blue;
+	padding: 5px 5px 0px 5px;
+}
+.Values
+{
+	font-size: Small;
+	color: Blue;
+}
+
+.Nav li { list-style:none; float:left; }
+.Nav ul a {
+  padding: 0px 10px;
+  text-decoration:none!important;
+  margin:1px;
+  font:18px Verdana bold;
+  color:#FFF;
+  background: blue;
+}
+.Nav ul a:hover {
+  color:#FFF;
+  background:#111;
+  }
+.Nav ul a.selected {
+  margin-bottom:0;
+  color:#000;
+  background:snow;
+  border-bottom:1px solid snow;
+  cursor:default;
+}
+
+.ContentArea 
+{
+vertical-align: top;
+background: Blue;
+border-Right: 2px solid black;
+}

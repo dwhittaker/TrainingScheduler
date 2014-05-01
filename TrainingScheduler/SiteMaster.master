@@ -1,0 +1,97 @@
+﻿<%@ Master
+	Language           = "VB"
+	AutoEventWireup    = "True"
+	Inherits           = "TrainingScheduler.SiteMaster"
+%>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<script type="text/javascript">
+
+ 			function AssignParent(strParent,location) 
+			{
+				document.getElementById('<%=lblparent.ClientId%>').value = strParent;
+ 				form1.submit();
+ 				if (location != '') {
+ 					window.location =  location;
+ 				}
+ 
+				
+			}
+
+			function DoScroll() {
+				var c = document.getElementById('DoNotScroll');
+				if (c == null || c == undefined){			
+					parent.scrollTo(0, 0);
+				}
+			}
+	</script>
+	<head>
+		<title>Training Scheduler</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
+		<meta http-equiv="PRAGMA" content="NO-CACHE" />
+		<link href="TrainingScheduler.css" type="text/css" rel="stylesheet" />
+
+		<form id = "form1" runat="server" onsubmit="DoScroll(); return true;">
+		<asp:hiddenfield runat="server" onload = "parentload" id="lblparent"/>
+		<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering = "True" />
+		<table width = 100% style = "border-collapse: collapse">
+			<tr>
+				<td rowspan = 2 width="100" height="90" style="border-bottom: 5px solid blue;"><img src="Images\SPIN-Logo-transparent-bgd.gif" width="100" height="90"></td>
+				<td align = "Center"><font size = 6 color=blue><b>SPIN Training Scheduler</b></font></td>
+			</tr>
+			<tr>
+				<td class="bottom">
+					<div class="Nav">
+						<ul style="horizontal-align: left">
+							<li><a href = "Default.aspx">Registration</a></li>
+							<li><asp:hyperlink id="hlAtt" NavigateUrl="TrainingRecords.aspx" text="Attendance" runat="server"/></li>
+							<li><asp:hyperlink id="hlConfig" NavigateUrl="Config.aspx" text="Configuration" runat="server"/></li>
+ 							<li><asp:hyperlink id="hlDash" NavigateUrl="InsDashboard.aspx" Text="Instructor Dashboard" runat="server" visible="false"/></li>
+ 							<li><asp:hyperlink id ="hlAdmin" NavigateUrl="Admin.aspx" Text="Admin" runat = "server" visible="True"/></li>
+						</ul>
+						<ul style="position: absolute;right: 0;width: 98px;top: 64px;">
+							<li><asp:hyperlink id="hlLogout" NavigateUrl="Login.aspx" text="Logout" runat="server" visible = "true"/></li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</head>
+
+	<body >
+			<table width=100% height = 100% style="border-collapse:collapse" >
+				<tr>
+					
+					<td width = "220" class="LinkArea"><asp:ContentPlaceHolder id = "Links" runat="server"></asp:contentPlaceHolder></td>
+					
+					<td style="vertical-align:top;"><asp:ContentPlaceHolder id = "Main" runat="server"></asp:contentPlaceHolder></td>
+				</tr>
+			</table>
+			<script type="text/javascript">
+			var xPos, yPos;
+			var pbe;
+			var prm = Sys.WebForms.PageRequestManager.getInstance();
+			
+			prm.add_beginRequest(StartReq);
+			prm.add_endRequest(EndReq);
+    		function StartReq(sender, args) {
+    			pbe = args.get_postBackElement().id ;
+    			if (pbe != null || pbe != undefined) {
+    				yPos = $get(pbe).scrollTop;
+    			}
+    		}
+    		function EndReq(sender, args) {
+    			var c = document.getElementById('DoNotScroll');
+				if (c == null || c == undefined){
+					if ($get(pbe) != null || $get(pbe) != undefined) {		
+        				$get(pbe).scrollTop = yPos;
+        			}
+        		}
+    		}
+		</script>
+		</form>
+	</body>
+</html>
+
