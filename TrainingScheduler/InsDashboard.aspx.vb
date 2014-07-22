@@ -61,6 +61,8 @@ Imports TrainingScheduler.Utility
 		Private Sub Page_Load(sender As Object, e As System.EventArgs)
 			Dim StrSQL As String
 			Dim DRSQL As SqlDataReader		
+			Dim Otheri As Boolean
+			Dim test As String
 			'------------------------------------------------------------------
 
 			If Not Page.IsPostBack Then
@@ -98,12 +100,9 @@ Imports TrainingScheduler.Utility
 				ddlMonth.SelectedValue = CDate(Session("dtCalDate")).Month.ToString()
 				ddlYear.SelectedValue = CDate(Session("dtCalDate")).Year.ToString()
 
-				DRSQL = GetDataReader("Select EMP_ID from Employee where Email = '" + Session("Email").ToString()+ "'")
-				While DRSQL.Read
-					Session("InsID") =DRSQL.GetValue(0).ToString()
-				End While
-				DRSQL.Close
-
+				Session("InsID") = GetSQLScalar("Select EMP_ID from Employee where Email = '" + Session("Email").ToString() + "'")
+				
+				test = GetSQLScalar("Select EMP_ID from Employee where Email = '" + Session("Email").ToString() + "'")
 '				Session("InsID") = getdatareader("Select EMP_ID from Employee where Email = '" + Session("Email").ToString()+ "'").GetValue(0).ToString()
 '		 		
 '				StrSQL = "Select EMP_ID,InsName from Instructors where EMP_ID In (Select distinct InstructorID from InsActionCalendar where ActionMonth = " + ddlMonth.SelectedItem.Value.ToString() + "and ActionYear= " + ddlYear.SelectedItem.Value.ToString() + " and InstructorID <> '" + Session("InsID").ToString() + "') Union ALL Select EMP_ID," + "InsName from Instructors where EMP_ID ='" + Session("InsID").ToString() + "'"
@@ -134,7 +133,9 @@ Imports TrainingScheduler.Utility
 				ddlDept.Items.Insert(0, New ListItem("None selected","-1"))
 				ddlDept.SelectedValue = "-1"
 				
-				If Session("logingroupname").ToString() IsNot "TS Admin" Then
+				Otheri = CBool(GetSQLScalar("select otherins from LDAPGroups where GroupID = " + Session("SecurityGroupID").ToString))
+				
+				If Otheri = False Then
 					panByInstructor.Visible = False
 				End If
 				
@@ -235,11 +236,15 @@ Imports TrainingScheduler.Utility
 		Private Sub ActionFill(strIns As String)
 			Dim strcmd As String
 			Dim stryear As Integer
+			Dim Otheri As Boolean
 			'Dim DRSQL As SqlDataReader	
 '			strSdate = ddlMonth.SelectedValue & "/" & "01" & "/" & ddlYear.SelectedValue
 '			strEdate = ddlMonth.SelectedValue & "/" & System.DateTime.DaysInMonth(Integer.Parse(ddlYear.SelectedValue), Integer.Parse(ddlMonth.SelectedValue)) & "/" & ddlYear.SelectedValue
 			stryear = CInt(ddlYear.SelectedValue.ToString())
-			If ddlInstructor.SelectedValue = "-1" And CStr(Session("logingroupname")) = "TS Admin" Then
+
+			Otheri = CBool(GetSQLScalar("select otherins from LDAPGroups where GroupID = " + Session("SecurityGroupID").ToString))
+
+			If ddlInstructor.SelectedValue = "-1" And Otheri = True Then
 				strIns = "%"
 			End If
 			strcmd = "Select * from InsActionCalendar where InstructorID like '" + strIns + "' and ActionMonth = " + ddlMonth.SelectedValue.ToString() + " and ActionYear = " + ddlYear.SelectedValue.ToString()
@@ -258,7 +263,12 @@ Imports TrainingScheduler.Utility
 		End Function
 		Public Sub InsFill()
 			Dim StrSQL As String
-			StrSQL = "Select EMP_ID,InsName from Instructors where EMP_ID In (Select distinct InstructorID from InsActionCalendar where ActionMonth = " + ddlMonth.SelectedItem.Value.ToString() + "and ActionYear= " + ddlYear.SelectedItem.Value.ToString() + " and InstructorID <> '" + Session("InsID").ToString() + "') Union ALL Select EMP_ID," + "InsName from Instructors where EMP_ID ='" + Session("InsID").ToString() + "'"
+			If Not Session("InsID") Is Nothing Then
+				StrSQL = "Select EMP_ID,InsName from Instructors where EMP_ID In (Select distinct InstructorID from InsActionCalendar where ActionMonth = " + ddlMonth.SelectedItem.Value.ToString() + "and ActionYear= " + ddlYear.SelectedItem.Value.ToString() + " and InstructorID <> '" + Session("InsID").ToString() + "') Union ALL Select EMP_ID," + "InsName from Instructors where EMP_ID ='" + Session("InsID").ToString() + "'"	
+			Else
+				StrSQL = "Select EMP_ID,InsName from Instructors where EMP_ID In (Select distinct InstructorID from InsActionCalendar where ActionMonth = " + ddlMonth.SelectedItem.Value.ToString() + "and ActionYear= " + ddlYear.SelectedItem.Value.ToString() + ")"
+			End If
+			
 				
 			ddlInstructor.DataSource = GetDataView(StrSQL)
 			ddlInstructor.DataValueField = "EMP_ID"

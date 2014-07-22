@@ -40,7 +40,7 @@
 				</tr>
 				<tr border = 0>
 					<td>
-						<b>Module Date: </b><asp:textbox id ="txtControl" runat = "Server"/> 
+						<b>Control ID: </b><asp:textbox id ="txtControl" runat = "Server"/> 
 						<asp:RequiredFieldValidator id="RequiredFieldValidator2" validationgroup = "Add" ControlToValidate="txtControl" 
 						Text="Control Name Required" CSSClass = "Validator" runat="server"/>
 					</td>

@@ -26,7 +26,7 @@
 						<asp:RequiredFieldValidator id="RequiredFieldValidator1" validationgroup = "Add" ControlToValidate="txtGroup" 
 						Text="LDAP Group Name Required!" CSSClass = "Validator" runat="server"/>
 					</td>
-					<td>
+					<td><asp:label id ="lblGid" runat="server" visible="False"/>
 					</td>
 					<td>
 					</td>
@@ -34,6 +34,16 @@
 				<tr border = 0>
 					<td>
 						<b>Work with Past Dates: </b><asp:checkbox id ="chkPast" runat = "Server"/> 
+					</asp:RegularExpressionValidator>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+				</tr>
+				<tr border = 0>
+					<td>
+						<b>Access Other Instructor Dashboard data: </b><asp:checkbox id ="chkOI" runat = "Server"/> 
 					</asp:RegularExpressionValidator>
 					</td>
 					<td>
@@ -64,6 +74,7 @@
 								backcolor = "black" 
 								runat="server" 
 								gridlines="vertical"
+								onEditCommand="Edit_Group"
 								onDeleteCommand="Remove_Group"
 								AutoPostBack = "False">
 						<headerstyle CssClass="GridHeader"/>
@@ -71,10 +82,16 @@
 								<asp:boundcolumn headertext="Group ID" datafield="GroupID" visible = "False">
 									<Itemstyle cssClass="GridFColumn"/>
 								</asp:boundcolumn>
-         						<asp:boundcolumn headertext="Group Name" datafield="LDAPGroupName">
+         						<asp:boundcolumn headertext="GName" datafield="LDAPGroupName" visible = "False">
          							<itemstyle cssClass="GridColumns"/>
          						</asp:boundcolumn>
+         						<asp:buttoncolumn headertext="Group Name" datatextfield="LDAPGroupName" CommandName="Edit">
+         							<itemstyle cssClass="GridFColumn"/>
+         						</asp:buttoncolumn>
          						<asp:boundcolumn headertext="Work with Past Data" datafield="PastDates">
+         							<itemstyle cssClass="GridColumns"/>
+         						</asp:boundcolumn>
+         						<asp:boundcolumn headertext="Other Instructor Dashboard" datafield="OtherIns">
          							<itemstyle cssClass="GridColumns"/>
          						</asp:boundcolumn>
 								<asp:TemplateColumn HeaderText="">

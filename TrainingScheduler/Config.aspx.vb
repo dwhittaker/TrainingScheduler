@@ -185,7 +185,7 @@ Public Class [Config]
 			
 			If rdRollup.Checked = True And vmode = "C" Then
 				e.Item.Cells(2).Style.Add("font-style","italic")
-				e.Item.Cells(14).Attributes("onClick") = ""
+				'e.Item.Cells(14).Attributes("onClick") = "return ConfirmModDeletion();"
 			End If
 			
 			If rdRollup.Checked = True And vmode = "E" Then
@@ -356,19 +356,35 @@ Public Class [Config]
 	#Region "Data Manipulation"
 	Protected Sub Remove_Class(ByVal source As Object, ByVal e As DataGridCommandEventArgs)
 		Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
-		Dim deletecmd As New SqlCommand("DeleteClass",sqlconn)	
+		Dim deletecmd As New SqlCommand()	
 		Dim pdates As Boolean
 		pdates = Cbool(GetSQLScalar("Select PastDates from LDAPGroups where GroupID = " + CStr(Session("SecurityGroupID"))))
 		If CDate(Session("dtCDate")) < Date.Today And pdates = False Then
 			Response.Write("<script>alert('You do not have rights to delete past classes')</script>")
 		Else
-			With deletecmd
-				.CommandType = CommandType.StoredProcedure
-				.Parameters.Add("@cid",SqlDbType.Int)
-				.Parameters("@cid").Value = CInt(e.Item.Cells(1).Text)
-				sqlconn.Open
-				.ExecuteNonQuery()
-			End With
+			If e.Item.Cells(1).Text.ToString() = "&nbsp;" And e.Item.Cells(15).Text.ToString <> "" Then
+				deletecmd.CommandText = "DeleteScheduledModule"
+				deletecmd.Connection = sqlconn
+				With deletecmd
+					.CommandType = CommandType.StoredProcedure
+					.Parameters.Add("@mid",SqlDbType.Int)
+					.Parameters.Add("@sdate",SqlDbType.DateTime)
+					.Parameters("@mid").Value = e.Item.Cells(15).Text.ToString
+					.Parameters("@sdate").Value = CDate(e.Item.Cells(5).Text.ToString)
+					sqlconn.Open
+					.ExecuteNonQuery()
+				End With
+			Else	
+				deletecmd.CommandText = "DeleteClass"
+				deletecmd.Connection = sqlconn
+				With deletecmd
+					.CommandType = CommandType.StoredProcedure
+					.Parameters.Add("@cid",SqlDbType.Int)
+					.Parameters("@cid").Value = CInt(e.Item.Cells(1).Text)
+					sqlconn.Open
+					.ExecuteNonQuery()
+				End With
+			End if
 			deletecmd = Nothing
 			sqlconn.Close
 			CourseFill()

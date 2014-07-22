@@ -58,7 +58,7 @@ Imports TrainingScheduler.Utility
 				cwcEmp.CtrlTField = "Name"
 				cwcEmp.CtrlBind()
 			End If
-			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions")
+			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions order by cast(enddate as datetime) desc")
 			cwcEmp.Attributes.Add("SQLField","EMP_ID")
 			txtSDate.Attributes.Add("SQLField","StartDate")
 			txtEDate.Attributes.Add("SQLField","EndDate")
@@ -110,6 +110,7 @@ Imports TrainingScheduler.Utility
 
 		End Sub
 		Protected Sub ExGridFill(strCmd As String)
+			'Fills grid 
 			dgExGrid.DataSource = GetDataView(strCmd)
 			dgExGrid.DataBind
 		End Sub
@@ -127,7 +128,7 @@ Imports TrainingScheduler.Utility
 			End With
 			sqlconn.Close
 			deleteex = Nothing
-			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions")
+			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions order by cast(enddate as datetime) desc")
 		End Sub
 		Protected Sub AddEx()
 			If Page.IsValid Then
@@ -150,7 +151,7 @@ Imports TrainingScheduler.Utility
 					End With
 					sqlconn.Close
 					updateex = Nothing
-					ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions")
+					ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions order by cast(enddate as datetime) desc")
 					ClearFrm()
 				Else
 					Dim insertex As New SqlCommand("InsertException",sqlconn)
@@ -169,7 +170,7 @@ Imports TrainingScheduler.Utility
 					End With
 					sqlconn.Close
 					insertex = Nothing
-					ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions")
+					ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions order by cast(enddate as datetime) desc")
 				End if
 			End If
 		End Sub
@@ -210,7 +211,7 @@ Imports TrainingScheduler.Utility
 					End If
 				Next
 				strCmd = strCmd.ToString.Substring(0,strCmd.Length - 5)
-				ExGridFill(strCmd)
+				ExGridFill(strCmd + " order by cast(enddate as datetime) desc")
 			End If
 		End Sub
 		Protected Sub ClearFrm()
@@ -220,7 +221,7 @@ Imports TrainingScheduler.Utility
 			txtEDate.Text = ""
 			btnAddNew.Text = "Add New Exception"
 			lblExID.Value = ""
-			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions")
+			ExGridFill("select exceptionid,emp_id,Last_Name,First_name,StartDate,EndDate,Reason from v_Exceptions order by cast(enddate as datetime) desc")
 		End Sub
 		#End Region
 	End Class

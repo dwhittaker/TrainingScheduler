@@ -71,6 +71,7 @@
 					 		<br />
 							<asp:button id="butSaveRecord" runat="server" text="Save" ValidationGroup="Editg" />
 							<asp:button id="butCancelEdit" runat="server" text="Cancel" />
+							<asp:label id="lblErr1" runat="Server" CssClass="Validator" visible="false"/>
 						</asp:panel>			
 					</ContentTemplate>
 				</asp:UpdatePanel>
@@ -121,6 +122,7 @@
 					 		<br />
 							<asp:button id="butCreateRecord"  ValidationGroup="Createg" runat="server" text="Create Record" />
 							<asp:button id="butCancelCreate" runat="server" text="Cancel" />
+							<asp:label id="lblErr2" runat="Server" CssClass="Validator" visible="false"/>
 						</asp:panel>			
 					</ContentTemplate>
 				</asp:UpdatePanel>
@@ -155,6 +157,9 @@
 						<Itemstyle cssClass="GridColumns"/>
 					</asp:boundcolumn>
 					<asp:boundcolumn headertext="Title/Description" datafield="coursetitledesc" sortexpression="coursetitledesc">
+						<Itemstyle cssClass="GridColumns"/>
+					</asp:boundcolumn>
+					<asp:boundcolumn headertext="Status" datafield="description">
 						<Itemstyle cssClass="GridColumns"/>
 					</asp:boundcolumn>
 					<asp:boundcolumn headertext="Comments" datafield="comments">

@@ -18,6 +18,7 @@ Imports System.Web.UI.WebControls
 Imports System.Web.UI.HtmlControls
 Imports System.Data.SqlClient
 Imports TrainingScheduler.Utility
+Imports System.IO
 
 	''' <summary>
 	''' Description of MergeRecords
@@ -39,6 +40,7 @@ Imports TrainingScheduler.Utility
 		#Region "Page Init & Exit (Open/Close DB connections here...)"
 
 		Protected Sub PageInit(sender As Object, e As System.EventArgs)
+			CheckLogin(Cbool(Session("login")),Me.Response)	
 		End Sub
 		'----------------------------------------------------------------------
 		Protected Sub PageExit(sender As Object, e As System.EventArgs)
@@ -99,8 +101,12 @@ Imports TrainingScheduler.Utility
 			AddHandler Me.Load, New System.EventHandler(AddressOf Page_Load)
 			AddHandler Me.Init, New System.EventHandler(AddressOf PageInit)
 			AddHandler Me.Unload, New System.EventHandler(AddressOf PageExit)
+			AddHandler Me.PreRender, New System.EventHandler(AddressOf PreRend)
 			AddHandler Me.cwcSourceEmp.IndChange, New ddlSearch.IndChangeEventHandler(AddressOf SEmp_Change)
 			AddHandler Me.cwcMergeEmp.IndChange, New ddlSearch.IndChangeEventHandler(AddressOf MEmp_Change)
+		End Sub
+		Protected Sub PreRend(sender As Object,e As System.EventArgs)
+			ControlAccess(CInt(Session("SecurityGroupID")),System.Web.HttpContext.Current.Request.Path.ToString(),Me.Form)
 		End Sub
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -123,6 +129,7 @@ Imports TrainingScheduler.Utility
 			If cwcSourceEmp.CtrlSelValue = "-1" Or cwcMergeEmp.CtrlSelValue = "-1" Then
 				Response.Write("<script>alert('You must fill out both Source Employee and Merge To Employee fields.')</script>")
 			Else
+				HandleSig(CInt(GetSQLScalar("select count(emp_id) from empsignatures where emp_id = " + cwcSourceEmp.CtrlSelValue.ToString())),CInt(GetSQLScalar("select count(emp_id) from empsignatures where emp_id = " + cwcMergeEmp.CtrlSelValue.ToString())))
 				With mergecmd
 					.CommandType = CommandType.StoredProcedure
 					.Parameters.Add("@srec",SqlDbType.VarChar)
@@ -163,6 +170,42 @@ Imports TrainingScheduler.Utility
 				hdNames.Value = "No"
 			Else 
 				hdNames.Value = "Yes"
+			End If
+		End Sub
+		Protected Sub HandleSig(ssig As Integer,msig As Integer)
+			Dim localpath As String
+			Dim spath As String
+			Dim mpath As String
+	
+			
+			localpath = "C:\Inetpub\Training\TrainingScheduler\"
+			
+			If ssig > 0 And msig > 0 Then
+				spath = localpath + CStr(GetSQLScalar("select sigpath from empsignatures where emp_id = " + cwcSourceEmp.CtrlSelValue.ToString))
+				DelSig(spath)
+			ElseIf ssig > 0 And msig = 0
+				spath = localpath + CStr(GetSQLScalar("select sigpath from empsignatures where emp_id = " + cwcSourceEmp.CtrlSelValue.ToString))
+				If CStr(GetSQLScalar("select sigpath from empsignatures where emp_id = " + cwcMergeEmp.CtrlSelValue.ToString)) = "" Then
+					mpath = localpath + "Signatures\" + cwcMergeEmp.CtrlSelValue.ToString + "\"
+				Else
+					mpath = localpath + CStr(GetSQLScalar("select sigpath from empsignatures where emp_id = " + cwcMergeEmp.CtrlSelValue.ToString))
+				End If
+				
+				If Not Directory.Exists(mpath) Then
+					Directory.CreateDirectory(mpath)
+				End If
+				If File.Exists(spath + "EmpSig.jpg") Then
+					File.Move(spath + "EmpSig.jpg",mpath + "EmpSig.jpg")
+					Directory.Delete(spath)
+				End If	
+			End If
+		End Sub
+		Protected Sub DelSig(delpath As String)
+			If File.Exists(delpath + "EmpSig.jpg") Then
+				File.Delete(delpath + "EmpSig.jpg")
+			End If
+			If Directory.Exists(delpath) Then
+				Directory.Delete(delpath)
 			End If
 		End Sub
 		#End Region

@@ -40,7 +40,12 @@ Imports TrainingScheduler.Utility
 		Protected WithEvents cvCourseType As CustomValidator
 		Protected WithEvents chkActive As CheckBox
 		Protected WithEvents txtComments As TextBox
-				
+		Protected WithEvents ddlView As DropDownList
+		Protected WithEvents rdActive As RadioButton
+		Protected WithEvents rdInAct As RadioButton
+		Protected WithEvents UpPan1 As UpdatePanel
+		Protected WithEvents UpPan2 As UpdatePanel
+		Protected WithEvents ddlCourseCat As DropDownList
 		#Region "The stuff you don't need to see"
 
 		Protected Sub PageInit(sender As Object, e As System.EventArgs)
@@ -61,6 +66,7 @@ Imports TrainingScheduler.Utility
 			AddHandler Me.Init, New System.EventHandler(AddressOf PageInit)
 			AddHandler Me.Unload, New System.EventHandler(AddressOf PageExit)
 			AddHandler Me.PreRender, New System.EventHandler(AddressOf PreRend)
+			AddHandler Me.UpPan1.PreRender, New System.EventHandler(AddressOf RefreshGrid)
 		End Sub
 		Protected Sub PreRend(sender As Object,e As System.EventArgs)
 			ControlAccess(CInt(Session("SecurityGroupID")),System.Web.HttpContext.Current.Request.Path.ToString(),Me.Form)
@@ -90,6 +96,21 @@ Imports TrainingScheduler.Utility
 					.SelectedValue = "-1"
 				End With
 				chkActive.Checked = True
+				
+				ddlView.DataSource = GetDataView("select coursecatid,category from coursecategory")
+				ddlView.DataValueField = "coursecatid"
+				ddlView.DataTextField = "Category"
+				ddlView.DataBind
+				ddlView.Items.Insert(0, New ListItem("All Categories","-1"))
+				ddlView.SelectedValue = "-1"
+				
+				ddlCourseCat.DataSource = GetDataView("select coursecatid,category from coursecategory")
+				ddlCourseCat.DataValueField = "coursecatid"
+				ddlCourseCat.DataTextField = "Category"
+				ddlCourseCat.DataBind
+				ddlCourseCat.Items.Insert(0, New ListItem("None Selected","-1"))
+				ddlCourseCat.SelectedValue = "-1"
+				
 				GridLoad()		
 			End If
 			'------------------------------------------------------------------
@@ -102,14 +123,24 @@ Imports TrainingScheduler.Utility
 			End If
 		End Sub
 		Sub GridLoad()
-			'[TrainingCourseID] [int] IDENTITY(1,1) NOT NULL,
-			'[CourseTitle] [nvarchar](100) NOT NULL,
-			'[CourseDuration] [decimal](5, 2) NOT NULL,
-			'[CourseTypeID] [int] NOT NULL
-			TrainingCourses.datasource = Utility.GetDataView( _
-				"select TrainingCourseID, CourseTitle, CourseDuration, tc.CourseTypeID, ct.Description,Comments,Active from TrainingCourse tc " & _
-				"left join CourseType ct on tc.CourseTypeID = ct.CourseTypeID " & _				
-				"order by coursetitle")
+			Dim sql As String
+			sql ="select TrainingCourseID, CourseTitle, CourseDuration, tc.CourseTypeID, ct.Description,Comments,tc.CatID,cc.Category,Active from TrainingCourse tc " & _
+				"left join CourseType ct on tc.CourseTypeID = ct.CourseTypeID " & _
+				"left join CourseCategory cc on tc.CatID = cc.CourseCatID "
+			
+			If ddlView.SelectedValue <> "-1" Then
+				sql = sql + "Where cc.Category Like '" + ddlView.SelectedItem.Text + "' and Active = "
+			Else
+				sql = sql + "Where cc.Category Like '%' and Active = "
+			End If
+			
+			If rdActive.Checked = True Then
+				sql = sql + "1 order by CourseTitle"
+			Else
+				sql = sql + "0 order by CourseTitle"
+			End If
+			
+			TrainingCourses.datasource = Utility.GetDataView(sql)
 			TrainingCourses.databind
 		End Sub
 		
@@ -124,7 +155,12 @@ Imports TrainingScheduler.Utility
 					.DataTextField = "Description"
 					.DataBind					
 					.SelectedValue = DataBinder.Eval(e.Item.DataItem, "CourseTypeID").ToString()
+					
 				End With				
+				UpPan2.Update()
+			End If
+			If e.Item.ItemType = ListItemType.Item Or e.Item.ItemType = ListItemType.AlternatingItem Or e.Item.ItemType = ListItemType.SelectedItem Then
+				e.Item.Cells(11).Attributes.Add("onClick", "return ConfirmDeletion();")
 			End If
 		End Sub
 		
@@ -139,27 +175,53 @@ Imports TrainingScheduler.Utility
 			txtCourseTitle.Text = ""
 			txtCourseDuration.Text = ""
 			ddlCourseType.SelectedValue = "-1"
+			ddlCourseCat.SelectedValue = "-1"
 		End Sub
 		
 		Sub eventHandlerName(sender as Object, e as DataGridCommandEventArgs) Handles TrainingCourses.ItemCommand
 			If e.CommandName = "Edit" Then
 				panAddEdit.Visible = True
+				UpPan1.Update()
 				txtTrainingCourseID.value = e.Item.Cells(0).Text
 				txtCourseTitle.Text = e.Item.Cells(3).Text
 				txtCourseDuration.Text = e.Item.Cells(2).Text
 				ddlCourseType.selectedvalue = e.Item.Cells(1).Text	
-				If e.Item.Cells(6).Text.ToString() = "&nbsp;" Then
+				ddlCourseCat.SelectedValue = e.Item.Cells(5).Text
+				If e.Item.Cells(8).Text.ToString() = "&nbsp;" Then
 					txtComments.Text = ""
 				Else
-					txtComments.Text = e.Item.Cells(6).Text.ToString()
+					txtComments.Text = e.Item.Cells(8).Text.ToString()
 				End If
 				
-				If e.Item.Cells(7).Text.ToString = "True" Then
+				If e.Item.Cells(9).Text.ToString = "True" Then
 					chkActive.Checked = True
 				Else	
 					chkActive.Checked = False
 				End If
-			end if
+				UpPan2.Update
+			ElseIf e.CommandName = "Delete" Then
+				Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
+				Dim delcmd As New SqlCommand("DeleteTrainingCourse",sqlconn)
+				Dim ccount As Integer
+				Dim tcid As Integer
+				
+				tcid = CInt(e.Item.Cells(0).Text)
+				
+				ccount = CInt(GetSQLScalar("select count(trainingcourseid) from courseinstance where TrainingCourseID = " + CStr(tcid)))
+				
+				If ccount = 0 Then
+					With delcmd
+						.CommandType = CommandType.StoredProcedure
+						.Parameters.Add("@tcid",SqlDbType.Int)
+						.Parameters("@tcid").Value = tcid
+						sqlconn.Open
+						.ExecuteNonQuery()
+					End With
+					sqlconn.Close
+					delcmd = Nothing
+					UpPan2.Update()
+				End If
+			End If
 		End Sub
 		
 		Sub InsertUpdateRecordClicked(sender As Object, e As EventArgs) Handles butInsertUpdate.Click
@@ -170,7 +232,8 @@ Imports TrainingScheduler.Utility
 					UpdateTrainingCourse(txtTrainingCourseID.value, txtCourseTitle.Text, txtCourseDuration.Text, ddlCourseType.SelectedValue)
 				End If
 				GridLoad()
-				panAddEdit.Visible = false
+				panAddEdit.Visible = False
+				UpPan2.Update()
 			End If
 		End Sub
 		
@@ -198,6 +261,7 @@ Imports TrainingScheduler.Utility
 				.Parameters.Add("@coursetypeid", SqlDbType.Int)
 				.Parameters.Add("@comments",SqlDbType.Text)
 				.Parameters.Add("@active",SqlDbType.Bit)
+				.Parameters.Add("@coursecatid",SqlDbType.Int)
 				.Parameters("@trainingcourseid").Value = TrainingCourseID
 				.Parameters("@coursetitle").Value  = CourseTitle.trim
 				.Parameters("@courseduration").Value  = Double.Parse(duration)
@@ -208,6 +272,7 @@ Imports TrainingScheduler.Utility
 				Else	
 					.Parameters("@active").value = 0
 				End If
+				.Parameters("@coursecatid").Value = ddlCourseCat.SelectedValue
 				sqlconn.Open
 				.ExecuteNonQuery()				
 			End With
@@ -225,15 +290,19 @@ Imports TrainingScheduler.Utility
 				.Parameters.Add("@courseduration", SqlDbType.Decimal) 
 				.Parameters.Add("@coursetypeid", SqlDbType.Int)	
 				.Parameters.Add("@comments", SqlDbType.Text)
+				.Parameters.Add("@coursecatid",SqlDbType.Int)
 				.Parameters("@coursetitle").Value  = CourseTitle.trim
 				.Parameters("@courseduration").Value  = Double.Parse(duration)
 				.Parameters("@coursetypeid").Value = Integer.Parse(coursetypeid)
 				.Parameters("@comments").Value = txtComments.Text.ToString()
+				.Parameters("@coursecatid").Value = ddlCourseCat.SelectedValue
 				sqlconn.Open
 				.ExecuteNonQuery()
 			End With
 			insertcmd = Nothing
 			sqlconn.Close			
 		End Sub
-
+		Protected Sub RefreshGrid(sender As Object,e As EventArgs)
+			GridLoad()
+		End Sub
 	End Class

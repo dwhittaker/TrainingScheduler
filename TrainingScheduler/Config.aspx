@@ -24,6 +24,10 @@
            		{
              		return confirm('Are you sure you wish to delete this record?');
            		}
+           		function ConfrimModDeletion()
+           		{
+           			return confirm('Be aware that only classes with no enrollees will delete, do you still wish to continue?');
+           		}
    			</script>
 			<table width = 100%>
 				<tr>

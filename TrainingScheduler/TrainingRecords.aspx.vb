@@ -48,6 +48,7 @@ Imports TrainingScheduler.Utility
 		Protected WithEvents EditComments As TextBox
 		Protected WithEvents butSaveRecord As Button
 		Protected WithEvents butCancelEdit As Button
+		Protected WithEvents lblErr1 As Label
 		
 		'create
 		Protected WithEvents panRecordCreate As Panel
@@ -66,6 +67,7 @@ Imports TrainingScheduler.Utility
 		Protected WithEvents UpPan2 As UpdatePanel
 		Protected WithEvents UpPan3 As UpdatePanel
 		Protected WithEvents UpPan4 As UpdatePanel
+		Protected WithEvents lblErr2 As Label
 				
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Page Init & Exit (Open/Close DB connections here...)"
@@ -163,11 +165,12 @@ Imports TrainingScheduler.Utility
 			Dim dv As DataView = Utility.GetDataView(String.Format( _
 				"select er.EmpRegistrationID, er.comments, locationname, recertdate, " & _
 				"(case when coursedate='1/1/1900' then null else coursedate end) as coursedate, " & _ 
-				"completiondate, coursetitle + isnull('/<br />' + description, '') as coursetitledesc, " & _ 
+				"completiondate, coursetitle + isnull('/<br />' + ci.description, '') as coursetitledesc,rs.description, " & _ 
 				"datediff(mi, coursestarttime, courseendtime)/60.0 as duration, " & _
 				"insname from empregistration er " & _
 				"inner join courseinstance ci on er.courseinstanceid = ci.courseinstanceid " & _
 				"inner join trainingcourse tc on ci.trainingcourseid = tc.trainingcourseid " & _
+				"join RegStatus rs on rs.[Status] = er.[Status] " & _
 				"left join instructors cin on ci.courseinstructorid = cin.emp_id " & _
 				"left join courselocation cl on ci.courselocationid = cl.courselocationid " & _
 				"where er.emp_id = '{0}' order by coursetitle", cwcEmp.CtrlSelValue))
@@ -325,9 +328,33 @@ Imports TrainingScheduler.Utility
 		End Sub
 		
 		Sub SaveRecordClicked(sender As Object, e As EventArgs) Handles butSaveRecord.Click
+			Dim rallow As Boolean
+			Dim ciid As Integer
+			Dim tcid As Integer
 			If Not Page.IsValid Then
 				Exit Sub
 			End if								
+			
+			ciid = CInt(GetSQLScalar("Select Courseinstanceid from EmpRegistration where empregistrationid = " + EmpRegistrationID.Text))
+			
+			tcid = CInt(GetSQLScalar("Select TrainingCourseID from CourseInstance where CourseInstanceID = " + CStr(ciid)))
+			
+			rallow = CBool(GetSQLScalar("Select Recert from CourseCategory where CourseCatID = (select CatID from TrainingCourse where TrainingCourseID = " + CStr(tcid) + ")"))
+			
+			If EditRecertDate.Text <> "" And EditCompletedDate.Text = "" Then
+				If rallow = False Then
+					lblErr1.Text = "Recert only records not allowed for class, record not updated"
+					lblErr1.Visible = True
+					UpPan2.Update
+					Exit Sub
+				Else
+					lblErr1.Text = ""
+					lblErr1.Visible = False
+				End If
+			Else
+				lblErr1.Text = ""
+				lblErr1.Visible = False
+			End If
 			
 			UpdateTrainingRecord(EmpRegistrationID.Text, EditRecertDate.Text.Trim, Editcompleteddate.Text.Trim, EditComments.Text.Trim)	
 			
@@ -338,9 +365,33 @@ Imports TrainingScheduler.Utility
 		End Sub
 		
 		Sub CreateRecordClicked(sender As Object, e As EventArgs) Handles butCreateRecord.click
+			Dim rallow As Boolean
+			Dim tcid As Integer
 			If Not Page.IsValid Then
 				Exit Sub
 			End If					
+			
+			rallow = CBool(GetSQLScalar("Select Recert from CourseCategory where CourseCatID = (select CatID from TrainingCourse where TrainingCourseID = " + CStr(ddlTrainingCourse.SelectedValue) + ")"))
+			
+			If CreateRecertDate.Text <> "" And CreateCompletedDate.Text = "" Then
+				If rallow = False Then
+					lblErr2.Text = "Recert only records not allowed for class, record not created"
+					lblErr2.Visible = True
+					UpPan3.Update
+					Exit Sub
+				Else
+					lblErr2.Text = ""
+					lblErr2.Visible = False							
+				End If
+			ElseIf CreateRecertDate.Text = "" And CreateCompletedDate.Text = ""
+					lblErr2.Text = "Both recert and completed dates can't be blank, record not created"
+					lblErr2.Visible = True
+					UpPan3.Update
+					Exit Sub
+			Else
+				lblErr2.Text = ""
+				lblErr2.Visible = False
+			End If
 			
 			CreateTrainingRecord( _
 					cwcEmp.CtrlSelValue, _
@@ -372,6 +423,7 @@ Imports TrainingScheduler.Utility
 		Protected Sub UpdateTrainingRecord(EmpRegistrationID As String, recertdate As String, completiondate As string, comments As string)
 			Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
 			Dim updatecmd As New SqlCommand("UpdateEmpRegistration",sqlconn)
+			Dim test As String
 			
 			With updatecmd
 				.CommandType = CommandType.StoredProcedure
@@ -381,6 +433,7 @@ Imports TrainingScheduler.Utility
 				.Parameters.Add("@comments", SqlDbType.VarChar)
 				.Parameters.Add("@user",SqlDbType.VarChar)
 				.Parameters("@empregistrationid").Value = EmpRegistrationID
+				test = EmpRegistrationID
 				If recertdate = "" Then
 					.Parameters("@recertdate").Value  = System.DBNull.value
 				Else

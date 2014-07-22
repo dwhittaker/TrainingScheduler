@@ -119,7 +119,6 @@ Imports TrainingScheduler.Utility
 			Dim groups() As String
 			Dim sgroup As String
 			Dim log As Integer
-			Dim vins As Integer
 			
 			
 			log = 0
@@ -137,12 +136,12 @@ Imports TrainingScheduler.Utility
 				
 			Next
 			
-			
-			vins = CInt(GetSQLScalar("Select PageAccessID from pageaccess where GroupID = " + CStr(Session("SecurityGroupID")) + " and PageID = 12"))
-			
-			If vins > 0 Then
-				Session("Email") = ldapresult.GetDirectoryEntry().Properties("mail").Value.ToString
+			If ldapresult.GetDirectoryEntry().Properties.Contains("mail") Then
+				If ldapresult.GetDirectoryEntry().Properties("mail").Value.ToString <> "" Then
+					Session("Email") = ldapresult.GetDirectoryEntry().Properties("mail").Value.ToString
+				End if
 			End If
+			
 			
 			result = "Yes"
 			return result

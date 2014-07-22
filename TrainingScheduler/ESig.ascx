@@ -378,12 +378,9 @@ function ClearSig(){
 	<table>
 		<tr>
 			<td style="" colspan=3>
-				<div id ="SigCan" style="width:500px;height:100px;border:1px solid #c3c3c3;background:white;cursor:crosshair;position:absolute;">
-					
+				<div id ="SigCan" style="width:500px;height:100px;border:1px solid #c3c3c3;background:white;cursor:crosshair;position:absolute;">	
 				</div>
 				<div id ="OvSig" style = "width:500px;height:100px;border:1px solid #c3c3c3;background:transparent;cursor:crosshair;position:absolute;margin-bottom:100px;" onmousemove = "return getMouseXY(event);" onmousedown = "return TrackNow(event);" onmouseup = "return StopTrack(event);">
-				</div>
-				<div id="Spacer">
 				</div>
 				<script>
 					LoadList();
@@ -397,13 +394,19 @@ function ClearSig(){
 			<td><asp:hiddenfield runat="Server" id="isSig"/></td>
 		</tr>
 		<tr>
-			<td><asp:button runat="Server" id = "btnSave" text="Save Signature" autopostback = "False"/><asp:checkbox id="chkVerify" runat="Server" text="I verify the above signature is mine." visible="false"/></td>
-			<td><asp:button id ="btnVerify" runat="server" text="Verify" visible = "false" onclick="VerifySig" /></td>
-			<td align="right"><asp:button id="btnClear" runat="Server" text = "Clear Signature" OnClientClick="return ClearSig();"/></td>
+			<table class="Buttons">
+				<tr>
+					<td><asp:button runat="Server" id = "btnSave" text="Save Signature" autopostback = "False"/><asp:checkbox id="chkVerify" runat="Server" text="I verify the above signature is mine." visible="false"/></td>
+					<td><asp:button id ="btnVerify" runat="server" text="Verify" visible = "false" onclick="VerifySig" /></td>
+					<td><asp:button id ="delSig" runat="Server" text="Delete Existing Signature" visible = "false" /></td>
+					<td align="right"><asp:button id="btnClear" runat="Server" text = "Clear Signature" OnClientClick="return ClearSig();"/></td>
+				</tr>
+			</table>
 		</tr>
 	</table>
 </body>
 </html>
+
 
 
 

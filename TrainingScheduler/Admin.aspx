@@ -16,6 +16,7 @@
 				<tr><td><asp:hyperlink id="hlBSec" NavigateUrl="BuildSecurity.aspx" text="Page Security" runat="Server"/><hr></tr></td>
 				<tr><td><asp:hyperlink id="hlImportFile" NavigateUrl="ImportFile.aspx" text="Import File" runat="server"/><hr></tr></td>
 				<tr><td><asp:hyperlink id="hlMergeRec" NavigateUrl="MergeRecords.aspx" text="Merge Records" runat="server"/><hr></tr></td>
+				<tr><td><asp:hyperlink id="hlManSig" NavigateUrl="ManageSig.aspx?skipatt=yes&candel=yes" text="Manage Signatures" runat="server"/><hr></tr></td>
 			</table>
 		</asp:Panel>
 	</asp:Content>

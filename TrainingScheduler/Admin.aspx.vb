@@ -27,8 +27,7 @@ Imports TrainingScheduler.Utility
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Data"
 
-		Protected _Button_Ok As HtmlInputButton
-		Protected _Input_Name As HtmlInputText
+		Protected withevents hlManSig As HyperLink
 
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -49,6 +48,7 @@ Imports TrainingScheduler.Utility
 			If Not IsPostBack Then
 				PageSecurity()
 			End If
+
 			'------------------------------------------------------------------
 		End Sub
 		Protected Sub PageSecurity()

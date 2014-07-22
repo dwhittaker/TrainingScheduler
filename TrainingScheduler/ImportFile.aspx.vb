@@ -413,6 +413,7 @@ Imports System.Text.RegularExpressions
 			Dim l As Integer
 			Dim f As Integer
 			Dim c As Integer
+			Dim offset As Integer
 			Dim len As Integer
 			Dim strlines() As String
 			Dim strcols() As String
@@ -448,31 +449,36 @@ Imports System.Text.RegularExpressions
 				For l = 1 To strlines.GetLength(len) - 2
 					c = 0
 					f = 0
+					offset = 0
 					strData = strlines(l).Split(",")
 					For Each strFind In ImpField
 						Field = strFind.Substring(4,strFind.ToString.Length - 5).ToLower
 						For f = 0 To strcols.GetLength(c) - 1
+							If strData(f).IndexOf("""") = 0 Then
+								test = strData(f).IndexOf("""")
+								bolqual = True
+								fulldat = strData(f)
+								Do Until bolqual = False
+									offset = offset + 1
+									fulldat = fulldat + "," + strData(f + offset)
+									If strData(f + offset).IndexOf("""") > -1 Then
+										'fulldat = fulldat + "," + strData(f)
+										fulldat = fulldat.Replace("""","")
+										bolqual = False
+									End If
+								Loop
+							End If
 							If Field = strcols(f).ToLower Then
 								With cmd
 									.Parameters("@rid").Value = l
 									.Parameters("@cname").Value = strFind
-									If strData(f).IndexOf("""") > -1 Then
-										bolqual = True
-										fulldat = strData(f)
-										Do Until bolqual = False
-											f = f + 1
-											fulldat = fulldat + "," + strData(f)
-											If strData(f).IndexOf("""") > -1 Then
-												'fulldat = fulldat + "," + strData(f)
-												bolqual = False
-											End If
-										Loop
-										fulldat = fulldat.Replace("""","")
+									If strData(f).IndexOf("""") = 0
 										'fulldat = fulldat.Replace("\","")
 										.Parameters("@data").Value = fulldat
 									Else
-										.Parameters("@data").Value = strData(f).Trim()
+										.Parameters("@data").Value = strData(f + offset).Trim()
 									End If
+									offset = 0
 									sqlconn.Open
 									.ExecuteNonQuery
 								End With

@@ -31,6 +31,7 @@ Imports TrainingScheduler.Utility
 		Protected WithEvents chkModActive As CheckBox
 		Protected WithEvents btnAdd As Button
 		Protected WithEvents btnClear As Button
+		Protected strCrit As String
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Page Init & Exit (Open/Close DB connections here...)"
@@ -50,7 +51,8 @@ Imports TrainingScheduler.Utility
 			If Not IsPostBack Then
 				PageSecurity()
 			End If
-			dgModGrid.DataSource = GetDataView("Select * from Modules")
+			'strCrit = "where (enddate >= GetDate() or enddate is null)"
+			dgModGrid.DataSource = GetDataView("Select * from Modules" + strCrit)
 			dgModGrid.DataBind()
 			'------------------------------------------------------------------
 		End Sub

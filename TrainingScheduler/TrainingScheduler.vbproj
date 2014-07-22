@@ -107,6 +107,12 @@
     <Compile Include="ImportList.aspx.vb">
       <DependentUpon>ImportList.aspx</DependentUpon>
     </Compile>
+    <Compile Include="LogOut.aspx.vb">
+      <DependentUpon>LogOut.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ManageSig.aspx.vb">
+      <DependentUpon>ManageSig.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MergeRecords.aspx.vb">
       <DependentUpon>MergeRecords.aspx</DependentUpon>
     </Compile>
@@ -175,6 +181,8 @@
     <None Include="ESig.ascx" />
     <None Include="ImportFile.aspx" />
     <None Include="ImportList.aspx" />
+    <None Include="LogOut.aspx" />
+    <None Include="ManageSig.aspx" />
     <None Include="MergeRecords.aspx" />
     <None Include="ModScheduler.aspx" />
     <None Include="Modules.aspx" />

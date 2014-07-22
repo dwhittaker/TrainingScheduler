@@ -27,6 +27,7 @@ Imports TrainingScheduler.Utility
 		#Region "Data"
 		Protected WithEvents txtCatName As TextBox
 		Protected WithEvents chkRecert As CheckBox
+		Protected WithEvents chkApD As CheckBox
 		Protected WithEvents btnCreate As Button
 		Protected WithEvents btnCancel As Button
 		Protected WithEvents dgCatGrid As DataGrid
@@ -37,6 +38,7 @@ Imports TrainingScheduler.Utility
 		Protected WithEvents UpPan4 As UpdatePanel
 		Protected WithEvents PanCreate As Panel
 		Protected WithEvents UpPan5 As UpdatePanel
+		Protected WithEvents hdfCatID As HiddenField
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Page Init & Exit (Open/Close DB connections here...)"
@@ -56,15 +58,16 @@ Imports TrainingScheduler.Utility
 			If Not IsPostBack Then
 				Datafill()
 				PageSecurity()
+				ddlReport.DataSource = GetDataView("Select RgID, ReportGroup from ReportGroups")
+				ddlReport.DataValueField = "RgID"
+				ddlReport.DataTextField = "ReportGroup"
+				ddlReport.DataBind()
+				ddlReport.Items.Insert(0,New ListItem("----None Selected----","-1"))
+				ddlReport.SelectedValue = "-1"
 			End If
 			'------------------------------------------------------------------
 			
-			ddlReport.DataSource = GetDataView("Select RgID, ReportGroup from ReportGroups")
-			ddlReport.DataValueField = "RgID"
-			ddlReport.DataTextField = "ReportGroup"
-			ddlReport.DataBind()
-			ddlReport.Items.Insert(0,New ListItem("----None Selected----","-1"))
-			ddlReport.SelectedValue = "-1"
+
 			
 			ScriptManager.GetCurrent(Me.Page).RegisterAsyncPostBackControl(btnSaveEdit)
 		End Sub
@@ -94,12 +97,18 @@ Imports TrainingScheduler.Utility
 			AddHandler Me.Init, New System.EventHandler(AddressOf PageInit)
 			AddHandler Me.Unload, New System.EventHandler(AddressOf PageExit)
 			AddHandler Me.PreRender, New System.EventHandler(AddressOf PreRend)
+			AddHandler Me.dgCatGrid.ItemDataBound, New DataGridItemEventHandler(AddressOf _ItemDataBound)
 			'------------------------------------------------------------------
 			'------------------------------------------------------------------
 		End Sub
 		Protected Sub PreRend(sender As Object,e As System.EventArgs)
-			Dim test As String
 			ControlAccess(CInt(Session("SecurityGroupID")),System.Web.HttpContext.Current.Request.Path.ToString(),Me.Form)
+		End Sub
+		
+		Private Sub _ItemDataBound(sender As Object, e As DataGridItemEventArgs)
+			If e.Item.ItemType = ListItemType.Item Or e.Item.ItemType = ListItemType.AlternatingItem Or e.Item.ItemType = ListItemType.SelectedItem Then
+				e.Item.Cells(6).Attributes.Add ( "onClick", "return ConfirmDeletion();")
+			End If
 		End Sub
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -112,29 +121,128 @@ Imports TrainingScheduler.Utility
 			btnSaveEdit.Text = "Save Category"
 			PanCreate.Visible = False
 		End Sub
-		Protected Sub SaveEdit_Click(sender As Object, e As System.EventArgs) Handles btnSaveEdit.Click
-			Datafill()
-			Dim test As String
-			test = PanAddEdit.Visible.ToString()
-			test = PanCreate.Visible.ToString()
-			PanAddEdit.Visible = False
-			UpPan3.Update()
-			PanCreate.Visible = True
-			UpPan5.Update()
-		End Sub
-		Protected Sub Cancel(sender As Object, e As System.EventArgs) Handles btnCancel.Click
+		Protected Sub CancelCat(sender As Object, e As System.EventArgs) Handles btnCancel.Click
 			ClearFrm()
-			PanAddEdit.Visible = False
-			UpPan3.Update()
-			PanCreate.Visible = True
-			UpPan5.Update()
 		End Sub
-		Public Sub ClearFrm()
-			
+		Protected Sub SaveEdit_Click(sender As Object, e As System.EventArgs) Handles btnSaveEdit.Click
+			Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
+			Dim addcmd As New SqlCommand("AddCourseCat",sqlconn)
+			Dim editcmd As New SqlCommand("UpdateCourseCat",sqlconn)
+			If btnSaveEdit.Text = "Save Category" Then
+				With addcmd
+					.CommandType = CommandType.StoredProcedure
+					.Parameters.Add("@cat",SqlDbType.VarChar)
+					.Parameters.Add("@rec",SqlDbType.Bit)
+					.Parameters.Add("@apd",SqlDbType.Bit)
+					.Parameters.Add("@rg",SqlDbType.Int)
+					.Parameters("@cat").Value = txtCatName.Text
+					If chkRecert.Checked = True Then
+						.Parameters("@rec").Value = True
+					Else
+						.Parameters("@rec").value = False
+					End If
+					If chkApD.Checked = True Then
+						.Parameters("@apd").Value = True
+					Else
+						.Parameters("@apd").Value = False
+					End If
+					.Parameters("@rg").Value = ddlReport.SelectedItem.Value
+					sqlconn.Open
+					.ExecuteNonQuery()
+				End With
+				addcmd = Nothing
+				sqlconn.Close()
+			Else
+				With editcmd
+					.CommandType = CommandType.StoredProcedure
+					.Parameters.Add("@catid",SqlDbType.Int)
+					.Parameters.Add("@cat",SqlDbType.VarChar)
+					.Parameters.Add("@rec",SqlDbType.Bit)
+					.Parameters.Add("@apd",SqlDbType.Bit)
+					.Parameters.Add("@rg",SqlDbType.Int)
+					.Parameters("@catid").Value = hdfCatID.Value.ToString()
+					.Parameters("@cat").Value = txtCatName.Text
+					If chkRecert.Checked = True Then
+						.Parameters("@rec").Value = True
+					Else
+						.Parameters("@rec").Value = False
+					End If
+					If chkApD.Checked = True Then
+						.Parameters("@apd").Value = True
+					Else
+						.Parameters("@apd").Value = False
+					End If
+					.Parameters("@rg").Value = ddlReport.SelectedItem.Value
+					sqlconn.Open
+					.ExecuteNonQuery()
+				End With
+				editcmd = Nothing
+				sqlconn.Close()
+			End If
+			Datafill()
+			dgCatGrid.Visible = True
+			UpPan4.Update()
+			ClearFrm()
+'			PanAddEdit.Visible = False
+'			UpPan3.Update()
+'			PanCreate.Visible = True
+'			UpPan5.Update()
 		End Sub
 		Public Sub Datafill()
 			dgCatGrid.DataSource = GetDataView("Select * from v_CourseCat")
 			dgCatGrid.DataBind()
+			'UpPan4.Update()
+		End Sub
+		Protected Sub EditCat(sender As Object, e As DataGridCommandEventArgs)
+			Dim lsti As ListItem
+			PanAddEdit.Visible = True
+			txtCatName.Text = e.Item.Cells(1).Text
+			hdfCatID.Value = e.Item.Cells(0).Text
+			If e.Item.cells(2).Text = "True" Then
+				chkRecert.Checked = True
+			Else
+				chkRecert.Checked = False
+			End If
+			If e.Item.Cells(3).Text = "True" Then
+				chkApD.Checked = True
+			Else
+				chkApD.Checked = False
+			End If
+			lsti = ddlReport.Items.FindByText(e.Item.Cells(4).Text.ToString())
+			ddlReport.SelectedValue =  lsti.Value.ToString()
+			btnSaveEdit.Text = "Update Category"
+			UpPan3.Update()
+			PanCreate.Visible = False
+			UpPan5.Update()
+		End Sub
+		Protected Sub DeleteCat(sender As Object, e As DataGridCommandEventArgs)
+			Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
+			Dim delcmd As New SqlCommand("DeleteCourseCat",sqlconn)
+			
+			With delcmd
+				.CommandType = CommandType.StoredProcedure
+				.Parameters.Add("@catid",SqlDbType.Int)
+				.Parameters("@catid").Value = e.Item.Cells(0).Text.ToString()
+				
+				sqlconn.Open
+				.ExecuteNonQuery()
+			End With
+			delcmd = Nothing
+			sqlconn.Close
+			
+			Datafill()
+			UpPan4.Update()
+		End Sub
+		Protected Sub ClearFrm()
+			txtCatName.Text = ""
+			chkRecert.Checked = False
+			chkApD.Checked = False
+			ddlReport.SelectedValue= "-1"
+			btnSaveEdit.Text = "Save Category"
+			PanAddEdit.Visible = False
+			UpPan3.Update()
+			PanCreate.Visible = True
+			UpPan5.Update()
 		End Sub
 		#End Region
 	End Class

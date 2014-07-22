@@ -37,6 +37,7 @@ Imports System.Data.SqlClient
 		Protected mvalue As String
 		Protected lvalue As String
 		Protected nlvalue As String
+		Protected WithEvents delSig As Button
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Page Init & Exit (Open/Close DB connections here...)"
@@ -78,6 +79,7 @@ Imports System.Data.SqlClient
 			AddHandler Me.Load, New System.EventHandler(AddressOf Page_Load)
 			AddHandler Me.Init, New System.EventHandler(AddressOf PageInit)
 			AddHandler Me.Unload, New System.EventHandler(AddressOf PageExit)
+			AddHandler Me.btnSave.Click, New System.EventHandler(AddressOf SaveImage)
 			'------------------------------------------------------------------
 			'------------------------------------------------------------------
 		End Sub
@@ -91,15 +93,28 @@ Imports System.Data.SqlClient
 				jscript = jscript + "document.getElementById('OvSig').style.height = '0px';"
 				jscript = jscript + "document.getElementById('OvSig').style.width = '0px';"
 				jscript = jscript + "document.getElementById('OvSig').style.visibility='hidden';"
-				jscript = jscript + "document.getElementById('Spacer').style.height = '0px';"
-				jscript = jscript + "document.getElementById('Spacer').style.width = '0px';"
-				jscript = jscript + "document.getElementById('Spacer').style.visibility='hidden';"
+''				jscript = jscript + "document.getElementById('Spacer').style.height = '0px';"
+''				jscript = jscript + "document.getElementById('Spacer').style.width = '0px';"
+''				jscript = jscript + "document.getElementById('Spacer').style.visibility='hidden';"
 				CSM.RegisterStartupScript(Page.GetType(),"removediv",jscript,True)
 				SigImg.ImageUrl = CStr(Session("SPath")) + "EmpSig.jpg"
-				btnVerify.Visible = True
-				chkVerify.Visible = True
 				btnSave.Visible = False
 				btnClear.Visible = False
+				If Not Request.QueryString("candel") Is Nothing Then
+					If Request.QueryString("candel").ToString = "yes" Then
+						delSig.Visible = True
+						btnVerify.Visible = False
+						chkVerify.Visible = False
+					Else
+						delSig.Visible = False
+						btnVerify.Visible = True
+						chkVerify.Visible = True
+					End If
+				Else
+					delSig.Visible = False
+					btnVerify.Visible = True
+					chkVerify.Visible = True
+				End If
 			Else
 				SigImg.Visible = False
 			End If
@@ -108,7 +123,7 @@ Imports System.Data.SqlClient
 		#End Region
 		'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		#Region "Sig Related"
-		Protected Sub SaveImage(sender As Object, e As EventArgs) Handles btnSave.Click
+		Protected Sub SaveImage(sender As Object, e As EventArgs) 'Handles btnSave.Click
 			Dim MoveArray As String()
 			Dim LineArray As String()
 			Dim NewLArray As String()
@@ -233,8 +248,13 @@ Imports System.Data.SqlClient
 			SaveS.Dispose()
 			
 			SaveAttendance()
-		
-			Response.Redirect("RegistryForm.aspx")
+			If Not Request.QueryString("skipatt") Is Nothing Then
+				If Request.QueryString("skipatt").ToString() <> "yes" Then
+					Response.Redirect("RegistryForm.aspx")
+				End If
+			Else
+				Response.Redirect("RegistryForm.aspx")
+			End If
 		End Sub
 	
 		Protected Sub VerifySig(sender As Object, e As EventArgs) Handles btnVerify.Click
@@ -242,6 +262,23 @@ Imports System.Data.SqlClient
 			If chkVerify.Checked = True Then
 				Response.Redirect("RegistryForm.aspx")
 			End If
+		End Sub
+		Protected Sub DeleteSignature(sender As Object, e As EventArgs) Handles delSig.Click
+			Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
+			Dim delcmd As New SqlCommand("DeleteSig",sqlconn)
+			Dim test As String
+			If System.IO.File.Exists(CStr(Session("LocalPath")) + CStr (Session("SPath")) + "EmpSig.jpg") Then
+				System.IO.File.Delete(CStr(Session("LocalPath")) + CStr (Session("SPath")) + "EmpSig.jpg")
+			End If
+			With delcmd
+				.CommandType = CommandType.StoredProcedure
+				.Parameters.Add("@empid",SqlDbType.VarChar)
+				.Parameters("@empid").Value = CStr(Session("EmpID"))
+				sqlconn.Open
+				.ExecuteNonQuery()
+			End With
+			sqlconn.Close
+			delcmd = Nothing
 		End Sub
 		Protected Sub SaveAttendance()
 			Dim sqlconn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnectionString"))
@@ -259,7 +296,15 @@ Imports System.Data.SqlClient
 				End With
 				addcmd = Nothing
 				sqlconn.Close
-				chkVerify.Checked = True
+				If Not Request.QueryString("skipatt") Is Nothing Then
+					If Request.QueryString("skipatt").ToString = "yes" Then
+						chkVerify.Checked = False
+					Else
+						chkVerify.Checked = True
+					End If
+				Else
+					chkVerify.Checked = True
+				End If
 			End If
 			If chkVerify.Checked = True Then
 				With updatecmd
